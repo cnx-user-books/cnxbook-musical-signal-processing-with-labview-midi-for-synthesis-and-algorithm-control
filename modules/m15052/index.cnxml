@@ -1,0 +1,54 @@
+<document xmlns="http://cnx.rice.edu/cnxml">
+  <title>[ mini-project ] Parse and analyze a standard MIDI file</title>
+  <metadata xmlns:md="http://cnx.rice.edu/mdml">
+  <md:content-id>m15052</md:content-id>
+  <md:title>[ mini-project ] Parse and analyze a standard MIDI file</md:title>
+  <md:abstract>This mini-project will develop your ability to interpret the binary file listing of a standard MIDI file. You will first parse the file into its component elements (headers, MIDI messages, meta-events, and delta-times), and then analyze your results.</md:abstract>
+  <md:uuid>c7c43c4d-d79a-450f-938a-db95e69b545a</md:uuid>
+</metadata>
+  <content>
+    <section id="id-108300451309">
+      <title>Objective</title>
+      <para id="id12818487">MIDI files consist of three types of data: (1) MIDI events, (2) timing information, and (3) file structure information (file header and track headers). Your task in this mini-project is to parse a MIDI file by hand by examining the individual bytes of the file. Once you can successfully parse a file, you will be well-positioned to write your own software applications that can create standard MIDI files directly, or even to read the file directly (a challenge!).</para>
+      <para id="id12609059">If you have not done so already, please study the pre-requisite modules, <link document="m15049">MIDI Messages</link> and <link document="m15051">Standard MIDI Files</link>. You will need to refer to both of these modules in order to complete this activity.</para>
+    </section>
+    <section id="id-797851094146">
+      <title>Part 1: Parse the File</title>
+      <para id="id13376192">The file to be parsed is available here: <link resource="parse_me.mid">parse_me.mid</link> (MIDI files are binary files, so right-click and choose “Save As” to download the file). If you wish, you can use a hexadecimal editor such as <link url="http://www.chmaas.handshake.de/delphi/freeware/xvi32/xvi32.htm">XVI32</link> to display the bytes, otherwise you can refer to the XVI32 screenshot below:</para>
+      <figure id="id10508418"><media id="idm12094368" alt=""><image src="../../media/graphics1-3282.png" mime-type="image/png" height="654" width="624"/></media>
+      
+<caption> Hexadecimal listing of the 'parse_me.mid' file
+</caption></figure>
+      <para id="id4588647">The byte position (address) is shown on the far left panel, the hexadecimal representation of each byte in the file is shown in the central panel, and the ASCII representation of each byte is shown in the right panel. Most of the ASCII characters look like gibberish, but important landmarks such as the track chunk ID (<code>MTrk</code>) are easily visible.</para>
+      <para id="id12347155">Interpret each part of the file, and list your results in tabular format, like this (use hexadecimal notation for the “Starting Address” column):
+
+</para>
+      <para id="id11829950"><media id="idp2170336" alt=""><image src="../../media/tabular_listing.png" mime-type="image/png"/></media></para>
+      
+      <para id="id11310163">Remember, a byte value of 0xFF signifies the beginning of a meta-event. Also, remember the concept of <term>running status</term>, so be on the lookout for MIDI messages whose first byte is NOT a status byte, i.e., whose MSB is clear. Take a look at the following video if you need some assistance:</para>
+      <figure id="id11718568"><title><link url="https://youtu.be/9lOWEZ-Q10E" window="new">https://youtu.be/9lOWEZ-Q10E</link> (5:41)</title><media id="eip-idm221919472" display="block" alt="Insert alt text here"><video mime-type="video/mpeg" src="https://www.youtube.com/embed/9lOWEZ-Q10E?rel=0" autoplay="false" width="640" height="460"/></media>
+<caption>[video] Walk through the MIDI file "parse_me.mid" at a high level, then  show some parsing examples at the beginning of the file.
+</caption></figure></section>
+    <section id="id-652585175874">
+      <title>Part 2: Analyze Your Results</title>
+      <para id="id9130748">Determine the following information for the MIDI file:</para>
+      <list id="id13113907" list-type="bulleted">
+        <item>File format (Type 0, 1, or 2)</item>
+        <item>Number of tracks</item>
+        <item>Number of distinct channels used</item>
+        <item>Number of distinct voices (instruments) used (look for Program Change messages)</item>
+        <item>Number of ticks per quarter note</item>
+        <item>Shortest two non-zero delta times, reported both in ticks and in microseconds (hint: the timing information you need here is derived from information in two distinct places)</item>
+        <item>Top two longest delta times, both in ticks and in microseconds</item>
+        <item>Minimum non-zero note-on velocity, and its channel and note number</item>
+        <item>Maximum note-on velocity, and its channel and note number</item>
+        <item>Total number of meta-events</item>
+      </list>
+      
+      <para id="id11091559">If you have not done so already, listen to <link resource="parse_me.mid">parse_me.mid</link> (click the link to launch your default music player application). How do your parsing and analysis results compare to what you hear?</para>
+      <para id="id13612938">
+        <code/>
+      </para>
+    </section>
+  </content>
+</document>

@@ -1,0 +1,137 @@
+<document xmlns="http://cnx.rice.edu/cnxml">
+  <title>MIDI Messages</title>
+  <metadata xmlns:md="http://cnx.rice.edu/mdml">
+  <md:content-id>m15049</md:content-id>
+  <md:title>MIDI Messages</md:title>
+  <md:abstract>Basic MIDI messages include those that produce sound, select voices, and vary a sound in progress, such as pitch bending. In this module you will learn about the most common types of MIDI messages at the byte level, including: Note-On, Note-Off, Program Change, Control Change, Bank Select, Pitch Wheel, and Syste-Exclusive. The General MIDI (GM) standard sound set is also introduced.</md:abstract>
+  <md:uuid>72c0354c-3654-41ef-86a9-27cdc77bd9a1</md:uuid>
+</metadata>
+<featured-links>
+  <!-- WARNING! The 'featured-links' section is read only. Do not edit below.
+       Changes to the links section in the source will not be saved. -->
+    <link-group type="supplemental">
+      <link url="https://www.midi.org/" strength="3">MIDI Manufacturers Association (MMA)  </link>
+      <link url="https://www.midi.org/articles-old/tutorial-midi-and-music-synthesis-1" strength="3">Tutorial on MIDI and Music Synthesis</link>
+      <link url="www.midi.org/specifications-old/item/table-1-summary-of-midi-message" strength="3">Summary of MIDI messages</link>
+      <link url="https://www.midi.org/specifications-old/item/table-2-expanded-messages-list-status-bytes" strength="3">Expanded Messages List (Status Bytes)</link>
+      <link url="https://www.midi.org/specifications-old/item/table-3-control-change-messages-data-bytes-2" strength="3">Summary of Control Change Messages (Data Bytes)</link>
+      <link url="https://www.midi.org/specifications/category/gm-specifications" strength="3">General MIDI ("GM") Specifications</link>
+      <link url="https://www.midi.org/specifications-old/item/gm-level-1-sound-set" strength="3">General MIDI Level 1 Sound Set</link>
+    </link-group>
+  <!-- WARNING! The 'featured-links' section is read only. Do not edit above.
+       Changes to the links section in the source will not be saved. -->
+</featured-links>
+<content>
+    <section id="id-804997151779">
+      <title>Introduction</title>
+      <para id="id4575402">A <term>MIDI message</term> conveys information between MIDI-capable equipment. For example, a message could indicate that a note should begin sounding, or that a specific type of sound be selected, or that the position of a pitch-bender control has just changed. MIDI messages are typically three bytes long: a <term>status byte</term> followed by two <term>data bytes</term>. Status and data bytes are distinguished by the value of the MSB (most-significant bit); the MSB is set to a “1” for status bytes, and is cleared to a “0” for data bytes.</para>
+      <para id="id9233112">When the MIDI standard was developed in 1983, MIDI messages were designed for compatibility with serial communications through <term>UART</term>s (universal asynchronous receiver-transmitters), the digital device “hiding” between the COM port on a desktop computer. In this way standard computer equipment could be interconnected to musical equipment including synthesizers, keyboards, sound modules, and drum machines.</para>
+      <para id="id8897562">The original MIDI electrical interconnection was designed for compatibility with standard audio cables terminated with <term>DIN-5</term> connectors. Look at the back of a typical synthesizer, and you will see three connectors that look like this:</para>
+      <figure id="id3196999"><media id="id1170885249890" alt=""><image src="../../media/connectors.png" mime-type="image/png" height="345" width="533"/></media>
+      
+<caption>
+   Rear-panel MIDI connectors for IN, OUT, and THRU
+</caption>
+</figure>
+      <para id="id4785594">The electrical connection is unidirectional. The <term>MIDI IN</term> connector accepts a signal transmitted from the <term>MIDI OUT</term> connector of another device. Many different devices can be cabled together in a <term>daisy chain</term>, like this:</para>
+      <figure id="id3730743"><media id="id1170875554002" alt=""><image src="../../media/daisy_chain.png" mime-type="image/png" height="427" width="533"/></media>
+      
+<caption>
+   Typical daisy-chain connection scheme for several MIDI devices
+</caption></figure>
+      <para id="id4567150">Since it is not always desirable to have every single device process and re-transmit received MIDI messages, the <term>MIDI THRU</term> connector offers an electrically-identical version of the signal received on the <term>MIDI IN</term> connector. For example, the sound module and drum machine do not generate MIDI messages, so they can simply pass through the signals. However, the keyboard generates messages, so the <term>MIDI OUT</term> connector must be used.</para>
+      <para id="id3061524">MIDI messages associated with the actual musical performance -- note on, note off, voice selection, and controller status – use the concept of a channel. For example, suppose that one synthesizer has been configured to associate “Channel 3” with the sound of a cello, and another synthesizer has been configured to associate “Channel 7” with the sound of a flute. When both of these interconnected synthesizers receive a “note on” message for Channel 3, only the first synthesizer will begin to sound a cello; the second synthesizer will ignore the message. In this way, many different devices can be interconnected, and configured to respond individually according to the channel number.</para>
+      <para id="id4589006">The MIDI standard for electrical interconnection specifies a fixed bit rate of 31.25 kbits/second. In the days of 8-MHz personal computers, 31.25 kbaud was considered quite fast. The rate is adequate to communicate performance information between several interconnected devices without noticeable delay, or <term>latency</term>. Today, however, MIDI messages are more often conveyed through <term>USB</term>. MIDI-to-USB converter boxes are available for older synthesizers that do not support USB directly.</para>
+    </section>
+    <section id="id-142078148504">
+      <title>Making a Sound: Note-On and Note-Off Events</title>
+      <para id="id3182045">As mentioned earlier, most MIDI messages are three bytes in length: a status byte followed by two data bytes. The status byte for the <term>Note-On event</term> is <term>1001nnnn </term>(0x<term>9n</term> in hexadecimal), where nnnn indicates the <term>channel number</term>. Since a four-bit value selects channel, there are a total of 16 channels available. The channels are called “Channel 1” (nnnn=0000) to “Channel 16” (nnnn=1111). </para>
+      <para id="id8100077">The first data byte indicates the <term>note number</term> to begin sounding, and the second data byte indicates the <term>velocity</term> at which the key was pressed. Since the MSB (most-significant bit) of a data byte is zero by definition, note number and velocity are each 7-bit values in the range 0 to 127.</para>
+      <para id="id7875234">Hexadecimal notation is commonly used to describe MIDI messages. For example, the three-byte message 0x93 0x5C 0x42 indicates a Note On event on Channel 4 for note number 92 with velocity 66. </para>
+      <para id="id9537847">The <term>Note-Off event</term> is similar; its status byte is <term>1000nnnn </term>(0x<term>8n</term>). For example, the three-byte message 0x83 0x5C 0x35 indicates that note number 92 on Channel 4 should cease sounding, and that the key release velocity was 53. Synthesizers and sound modules generally equate keypress velocity with amplitude; however, they are less likely to use the release velocity. A “Note On” event with zero velocity is equivalent to a “Note Off” event.</para>
+      <para id="id5666946">The following screencast video shows MIDI Note On and Note Off messages produced by the Roland XP-10 synthesizer and visualized using the <link url="http://www.midiox.com/">MIDI OX software application</link>. MIDI OX is a free MIDI utility that serves as a MIDI protocol analyzer. The video also shows how MIDI OX can play standard MIDI files such as <link url="http://instruments.mid/">instruments.mid</link>, a short multi-instrument composition that illustrates the concept of MIDI channels:</para>
+      <figure id="id6786407"><title><link url="https://youtu.be/NgST52eNAeI" window="new">https://youtu.be/NgST52eNAeI</link> (2:03)</title><media id="eip-idm310027200" display="block" alt="Insert alt text here"><video mime-type="video/mpeg" src="https://www.youtube.com/embed/NgST52eNAeI?rel=0" autoplay="false" width="640" height="460"/></media>
+<caption>[video] Visualize MIDI note-on and note-off messages generated by the Roland XP-10 synthesizer
+</caption></figure><para id="id10135286">If you plan to start using MIDI OX right away, take a look at the following screencast that explains how to set up MIDI OX to work with a MIDI device such as a synthesizer, and how to set up your soundcard so that you can visualize the MIDI messages produced by a MIDI player such as Winamp or Windows Media Player. You will also need to install the support application called <link url="http://www.midiox.com/">MIDI Yoke</link>, which serves as a virtual MIDI patch bay to interconnect all of the MIDI-related devices on your computer.</para>
+      <figure id="id7530403"><title><link url="https://youtu.be/zg1Guj3LyaI" window="new">https://youtu.be/zg1Guj3LyaI</link> (0:52)</title><media id="eip-idm387173248" display="block" alt="Insert alt text here"><video mime-type="video/mpeg" src="https://www.youtube.com/embed/zg1Guj3LyaI?rel=0" autoplay="false" width="640" height="460"/></media>
+<caption>[video] Setting up MIDI-OX to view MIDI messages
+</caption></figure><figure id="id5833764"><title><link url="https://youtu.be/-_K_I8vmh-U" window="new">https://youtu.be/-_K_I8vmh-U</link> (0:33)</title><media id="eip-idm894377040" display="block" alt="Insert alt text here"><video mime-type="video/mpeg" src="https://www.youtube.com/embed/-_K_I8vmh-U?rel=0" autoplay="false" width="640" height="460"/></media>
+
+
+<caption>[video] Setting up your soundcard to work properly with MIDI-OX and a media player
+</caption></figure></section>
+    <section id="id-23762201135">
+      <title>Selecting a Voice: Program Change</title>
+      <para id="id4926528">The <term>Program Change</term> message selects which of 128 possible voices (also called sounds, tones, or patches) to associate with a particular channel. The status byte for the Program Change message is <term>1100nnnn </term>(0x<term>Cn</term>), where nnnn indicates the channel number. Only one data byte called the <term>program number</term> follows the status byte for this message type. For example, the two-byte message 0xC7 0x5F directs the synthesizer to use program number 95 for all subsequent Note-On and Note-Off messages directed to Channel 8.</para>
+      <para id="id4839830">The original MIDI standard did not constrain equipment manufacturers in what sounds or voices to associate with program numbers. However, as it soon became apparent that defining standard voices for the 128 program numbers would make it easier for composers to distribute multi-voice (or <term>multitimbral</term>) compositions with the expectation of the listener hearing what the composer had intended. The <term>General MIDI (GM) standard</term> defines 128 basic voices to be associated with the 128 program numbers. Moreover, Channel 10 is always defined as a percussion instrument under the General MIDI standard. See the <link url="http://www.midi.org/about-midi/gm/gm1sound.shtml">GM Level 1 Sound Set</link> for a table of voices and percussion key map. Note that the seven-bit program number ranges from 0 to 127; the associated GM voice will range from 1 to 128. The following screencast video gives you a quick tour of the 128 General MIDI voices as they sound on my Roland XP-10 synthesizer.</para>
+      <figure id="id8168432"><title><link url="https://youtu.be/7KkEC1k58Is" window="new">https://youtu.be/7KkEC1k58Is</link> (4:29)</title><media id="eip-idm474702320" display="block" alt="Insert alt text here"><video mime-type="video/mpeg" src="https://www.youtube.com/embed/7KkEC1k58Is?rel=0" autoplay="false" width="640" height="460"/></media>
+
+
+<caption>[video] Tour of the General MIDI sound set as played by the Roland XP-10 synthesizer
+</caption></figure><para id="id4976163">The seven-bit program number can select from among a palette of 128 voices, yet musicians and composers find this value too limiting. Equipment manufacturers can easily provide thousands of voices thanks to the falling cost of solid-state memory.</para>
+      <para id="id8050996">With these facts in mind, it will be easier to understand why selecting a new voice for a channel can produce up to three distinct MIDI messages! The first two messages are Control Change messages, and the third message is a Program Change message. The status byte of a <term>Control Change</term> message is <term>1011nnnn </term>(0x<term>Bn</term>), where nnnn indicates the channel number. The first data byte following the status byte indicates the <term>controller number</term>, and the second data byte indicates the <term>controller value</term>. The Control Change message will be described more fully in the following section. When the Control Change message is used select a voice, the controller number can be either 0x00 or 0x20 to indicate that the second data byte is either the most significant byte or the least significant byte, respectively, of a combined 14-bit <term>bank select value</term>. An example will clarify these concepts.</para>
+      <para id="id3165374">Suppose that the following three MIDI messages are received by a synthesizer (each message is destined for Channel 1):</para>
+      <para id="id8113847">
+        <code>0xB0 0x00 0x2F</code>
+      </para>
+      <para id="id9038131">
+        <code>0xB0 0x20 0x38</code>
+      </para>
+      <para id="id3199185">
+        <code>0xC0 0x0E</code>
+      </para>
+      <para id="id3169143">The first message is a Control Change with control number 0x00, so the upper seven bits of the bank select value are 010_1111. The second message is also a Control Change, but the 0x20 control number signifies that the lower seven bits of the bank select value are 011_1000. Thus the first two messages communicate a single 14-bit bank select value of 01_0111_1011_1000. Lastly, the Program Change message indicates that program number 15 is to be used. With all three messages, it is possible to select a unique voice from among 2 raised to the 21st power possible voices (2,097,152 possible voices).</para><para id="id2915547">This clever scheme permits newer equipment with more than 128 voices to properly respond to the rich palette of possible voices, while older equipment that only supports the basic 128 voices defined by the General MIDI standard will simply ignore the two bank select messages and respond to the Program Change message. Equipment manufacturers therefore will often define tone variations on a theme defined by the program number. For example, since program number 1 defines “Acoustic Grand Piano,” the bank select technique can be used to define many different types of acoustic grand pianos.</para>
+      <figure id="id9319410"><title><link url="https://youtu.be/gaElxbCa1XI" window="new">https://youtu.be/gaElxbCa1XI</link> (1:13)</title><media id="eip-idm233729216" display="block" alt="Insert alt text here"><video mime-type="video/mpeg" src="https://www.youtube.com/embed/gaElxbCa1XI?rel=0" autoplay="false" width="640" height="460"/></media>
+
+
+<caption>[video] Visualize "Bank Select" and "Program Change" MIDI messages that select different voices
+</caption></figure></section>
+    <section id="id-264953923183">
+      <title>Modifying a Sound: Control Change and Pitch Wheel Change</title>
+      <para id="id8641081">Musicians need to do more than simply turn a note on and off. To be expressive, a musician needs to be able to modify a sound already in progress. Synthesizers offer various knobs and sliders that can introduce pitch bends and vibrato, for example.</para>
+      <para id="id4593703">The <term>Control Change</term> message indicates that a control has just been changed. The status byte of a Control Change message is <term>1011nnnn </term>(0x<term>Bn</term>), where nnnn indicates the channel number. The first data byte following the status byte indicates the <term>controller number</term>, and the second data byte indicates the <term>controller value</term>. Since the controller number is seven bits, 128 controller types are possible. Typical controllers include modulation wheel (0x01), main volume (0x07), sustain pedal (0x40), and general-purpose controllers (0x50 to 0x53).</para>
+      <para id="id9681561">Musicians use a synthesizer’s <term>pitch wheel</term> introduces to bend (temporarily raise or lower) the pitch of the entire keyboard. In order to provide more frequency resolution, the pitch wheel has a dedicated MIDI message; the two data bytes afford fourteen bits of resolution rather than the seven bits of resolution that are possible with a control change message.</para>
+      <para id="id8704757">The <term>Pitch Wheel Change</term> message indicates that the pitch wheel has just moved. The status byte of a Pitch Wheel Change message is <term>1110nnnn </term>(0x<term>En</term>), where nnnn indicates the channel number. The first data byte following the status byte is the lower seven bits of the overall 14-bit position value, and the second data byte contains the upper seven bits of the position value. The nominal value is 0x2000 when the pitch wheel is centered (data byte #1 = 0x00, data byte #2 = 0x40). Moving the pitch wheel to its lower (leftmost limit) produces a value of 0x0000, while moving it to its rightmost limit produces a value of 0x3FFF (data byte #1 = 0x7F, data byte #2 = 0x7F). Note that the Pitch Wheel Change message simply indicates the <emphasis>position</emphasis> of the pitch wheel; the synthesizer may interpret this position in various ways depending on other settings. For example, my synthesizer defaults to a whole step down when the pitch wheel is moved to its left limit, however, it can be adjusted to shift by an entire octave for the same amount of pitch wheel movement. </para>
+      <para id="id10847547">The following screencast illustrates the MIDI messages generated by the slider controls and pitch wheel.</para>
+      <figure id="id3074639"><title><link url="https://youtu.be/sBEJWk_R_Nc" window="new">https://youtu.be/sBEJWk_R_Nc</link> (1:06)</title><media id="eip-idm377872256" display="block" alt="Insert alt text here"><video mime-type="video/mpeg" src="https://www.youtube.com/embed/sBEJWk_R_Nc?rel=0" autoplay="false" width="640" height="460"/></media>
+
+
+
+<caption>[video] Visualize "Control Change" MIDI messages produced by a general-purpose slider, and the "Pitch Wheel Change" messages produced by the pitch-bender
+</caption></figure></section>
+    <section id="id-758884344759">
+      <title>Transferring Data: System Exclusive Messages</title>
+      <para id="id10593236">The <term>System Exclusive </term>(<term>SysEx</term>) message provides a mechanism to transfer arbitrary blocks of information between devices. For example, the complete configuration of a synthesizer can be uploaded to a computer to be retrieved at a later time. The term “exclusive” indicates that that information pertains only to a particular vendor’s piece of equipment, and that the organization of the information is vendor-specific.</para>
+      <para id="id10407989">The transfer process begins with the <term>System Exclusive Start</term> message with status byte <term>11110000 </term>(0x<term>F0</term>). The following data byte is the manufacturer ID. All following bytes must be data bytes in the sense that their most-significant bit is always zero. An arbitrary number of bytes may follow the manufacturer ID. The transfer process ends with the <term>System Exclusive End</term> message with status byte <term>11110111 </term>(0x<term>F7</term>); no data bytes follow this status byte.</para>
+    </section>
+    <section id="id-0366515557264">
+      <title>Other Messages</title>
+      <para id="id6743782">The messages discussed in this module are representative of what you will encounter when working with synthesizers and standard MIDI files, but are by no means a complete listing of all available messages. Refer to the <link url="http://www.midi.org/">MIDI Manufacturers Association</link> for full details on the MIDI standard; see the specific tables noted in the last section of this module. </para>
+    </section>
+    <section id="id-418766193462">
+      <title>For Further Study</title>
+      <list id="id3187982" list-type="bulleted"><item>
+          <link url="https://www.midi.org/">MIDI Manufacturers Association (MMA)</link>
+        </item>
+        <item>
+          <link url="https://www.midi.org/articles-old/tutorial-midi-and-music-synthesis-1">MMA: Tutorial on MIDI and Music Synthesis</link>
+        </item>
+        <item>
+          <link url="https://www.midi.org/specifications-old/item/table-1-summary-of-midi-message">MMA: Table 1: Summary of MIDI messages</link>
+        </item>
+        <item>
+          <link url="https://www.midi.org/specifications-old/item/table-2-expanded-messages-list-status-bytes">MMA: Table 2: Expanded Messages List (Status Bytes)</link>
+        </item>
+        <item>
+          <link url="https://www.midi.org/specifications-old/item/table-3-control-change-messages-data-bytes-2">MMA: Table 3: Summary of Control Change Messages (Data Bytes)</link>
+        </item>
+        <item>
+          <link url="https://www.midi.org/specifications/category/gm-specifications">MMA: General MIDI ("GM") Specifications</link>
+        </item>
+        <item>
+          <link url="https://www.midi.org/specifications-old/item/gm-level-1-sound-set">MMA: General MIDI Level 1 Sound Set</link>
+        </item>
+        <item>Textbook: Francis Rumsey, MIDI Systems and Control, 2nd ed., Focal Press, 1994. See Tables 3.1 (MIDI messages summarized), 2.2 (MIDI note numbers related to the musical scale), and 2.4 (MIDI controller functions).</item>
+      </list></section>
+  </content>
+</document>

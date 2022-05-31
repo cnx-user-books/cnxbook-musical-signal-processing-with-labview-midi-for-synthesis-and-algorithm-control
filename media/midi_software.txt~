@@ -1,0 +1,22 @@
+Title: Useful MIDI Software Utilities
+
+Summary: Freeware MIDI-related software utilities abound on the Internet; 
+some of my favorites are described in detail here. Each section includes a 
+screencast video to illustrate how to use the utility.
+
+Keywords (one per line): 
+JAZZ++
+MIDI-OX
+mf2t
+XVI32
+
+CNXML for figures:
+
+---------------------------------------
+
+<media type="image/png" src="NAME.html">
+          <param name="thumbnail" value="NAME.png"/>
+        </media>
+<caption>
+   [video] TITLE
+</caption>

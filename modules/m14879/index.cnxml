@@ -1,0 +1,51 @@
+<document xmlns="http://cnx.rice.edu/cnxml">
+  <title>Useful MIDI Software Utilities</title>
+  <metadata xmlns:md="http://cnx.rice.edu/mdml">
+  <md:content-id>m14879</md:content-id>
+  <md:title>Useful MIDI Software Utilities</md:title>
+  <md:abstract>Freeware MIDI-related software utilities abound on the Internet; 
+some of my favorites are described in detail here. Each section includes a 
+screencast video to illustrate how to use the utility.</md:abstract>
+  <md:uuid>35874bfb-d72a-4eb9-83be-1d99fcc53ad0</md:uuid>
+</metadata>
+  <content>
+    <section id="id-0395936307634">
+      <title>mf2t / t2mf</title>
+      <para id="id6442970">Standard MIDI files are binary files, and therefore cannot by read using a standard text editor. Piet van Oostrum has developed a companion pair of console applications called <term>mf2t</term> (MIDI File to Text) and <term>t2mf</term> (Text to MIDI File) that translate back and forth between the standard MIDI file and a human-readable version. You can more easily study the text-version MIDI file to see the messages, meta-events, and timing information. Also, you can edit the text-version, and then convert it back to the standard binary format.</para>
+      <para id="id3118095">Available at <link url="http://www.midiox.com/">http://www.midiox.com</link> (scroll towards bottom of the page).
+</para>
+      <figure id="id2677567"><title><link url="https://youtu.be/Z3e8q1NLNmo" window="new">https://youtu.be/Z3e8q1NLNmo</link> (4:21)</title><media id="eip-idm618946288" display="block" alt="Insert alt text here"><video mime-type="video/mpeg" src="https://www.youtube.com/embed/Z3e8q1NLNmo?rel=0" autoplay="false" width="640" height="460"/></media>
+
+
+<caption>[video] Tour of the mf2t / t2mf MIDI-to-text conversion utilities
+</caption></figure></section>
+    <section id="id-139855526293">
+      <title>XVI32</title>
+      <para id="id8550048">Created by Christian Maas,<term> XVI32</term> is an excellent binary file editor (or “hex editor”) when you need to view a standard MIDI file directly. XVI32 can also modify the file by tweaking individual byte values, or by inserting and deleting ranges of values. The editor also includes tools to interpret data values, i.e., select and range of 8 bytes and interpret as an IEEE double-precision floating point value.</para>
+      <para id="id6534110">Available at <link url="http://www.chmaas.handshake.de/delphi/freeware/xvi32/xvi32.htm">http://www.chmaas.handshake.de/delphi/freeware/xvi32/xvi32.htm</link></para>
+      <figure id="id8171827"><title><link url="https://youtu.be/OnKgF3Qj13U" window="new">https://youtu.be/OnKgF3Qj13U</link> (3:30)</title><media id="eip-idm263694976" display="block" alt="Insert alt text here"><video mime-type="video/mpeg" src="https://www.youtube.com/embed/OnKgF3Qj13U?rel=0" autoplay="false" width="640" height="460"/></media>
+
+
+<caption>[video] Tour of the XVI32 hex editor for viewing standard MIDI files
+</caption></figure></section>
+    <section id="id-279696108839">
+      <title>MIDI-OX</title>
+      <para id="id7119496"><term>MIDI-OX</term> is a wonderful utility developed Jamie O'Connell and Jerry Jorgenrud. MIDI-OX serves as a MIDI protocol analyzer by displaying MIDI data streams in real-time. MIDI-OX can also filter MIDI streams (remove selected message types) and map MIDI streams (change selected message types according to some rule). MIDI-OX includes other useful features: you can use your computer’s keyboard to generate note events (you can even hold down multiple keys to play chords!), you can play standard MIDI files (.mid files), and you can capture a MIDI data stream and save it to a file.</para>
+      <para id="id7731143">In order to make full use of MIDI-OX, you will also want to install the <term>MIDI-Yoke</term> driver. MIDI-Yoke works like a virtual <term>MIDI patch bay</term>, a device that connects MIDI inputs and outputs together. For example, you can connect the output of a MIDI sequencer application to MIDI-OX to view the MIDI messages, and then send the message to the MIDI synthesizer on your soundcard. When you have many MIDI-capable devices connected to your computer, MIDI-OX and MIDI-Yoke make it easy to quickly re-configure the virtual connections without changing any external cables.</para>
+      <para id="id5696083">Available at <link url="http://www.midiox.com/">http://www.midiox.com</link></para>
+      <figure id="id6439607"><title><link url="https://youtu.be/hpkHACb_DKE" window="new">https://youtu.be/hpkHACb_DKE</link> (4:32)</title><media id="eip-idm1236390544" display="block" alt="Insert alt text here"><video mime-type="video/mpeg" src="https://www.youtube.com/embed/hpkHACb_DKE?rel=0" autoplay="false" width="640" height="460"/></media>
+
+
+<caption>[video] Tour of the MIDI-OX utility
+</caption></figure></section>
+    <section id="id-0773361686907">
+      <title>JAZZ++</title>
+      <para id="id2599619"><term>JAZZ++</term> is a <term>MIDI sequencer </term>created by Andreas Voss and Per Sigmond. JAZZ++ serves as a multi-track recorder and editor for MIDI-capable instruments, and also supports audio tracks. A musician can create a composition with full instrumentation by recording tracks one at a time. Performances such as a piano solo recorded by the sequencer can easily be edited to correct any mistakes. JAZZ++ is also a great way to graphically visualize the contents of a standard MIDI file.</para>
+      <para id="id2688228">Available at <link url="http://www.jazzware.com/zope">http://www.jazzware.com/zope</link></para>
+      <figure id="id8005414"><title><link url="https://youtu.be/pzbp22L5SZ4" window="new">https://youtu.be/pzbp22L5SZ4</link> (8:48)</title><media id="eip-idm658251440" display="block" alt="Insert alt text here"><video mime-type="video/mpeg" src="https://www.youtube.com/embed/pzbp22L5SZ4?rel=0" autoplay="false" width="640" height="460"/></media>
+
+
+<caption>[video] Tour of the JAZZ++ MIDI sequencer application
+</caption></figure></section>
+  </content>
+</document>

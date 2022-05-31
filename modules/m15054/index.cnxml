@@ -1,0 +1,299 @@
+<document xmlns="http://cnx.rice.edu/cnxml">
+  <title>[ mini-project ] Create standard MIDI files with LabVIEW</title>
+  <metadata xmlns:md="http://cnx.rice.edu/mdml">
+  <md:content-id>m15054</md:content-id>
+  <md:title>[ mini-project ] Create standard MIDI files with LabVIEW</md:title>
+  <md:abstract>In this project you will create your own LabVIEW application that can 
+produce a standard MIDI file. You will first develop a library of
+utility subVIs that produce the various components of the file (header chunk,
+track chunks, MIDI messages, meta-events, and delta times), as well as a 
+subVI to write the finished binary file. You will then combine these into a 
+a top-level VI (application) that creates a complete MIDI file based on an
+algorithm of your choosing.</md:abstract>
+  <md:uuid>579f8f17-af66-425e-b099-6c0401880768</md:uuid>
+</metadata>
+  <content>
+    <section id="id-226207060371">
+      <title>Required Background</title>
+      <para id="id10256008">If you have not done so already, please study the pre-requisite modules, <link document="m15049">MIDI Messages</link> and <link document="m15051">Standard MIDI Files</link>. You will need to refer to both of these modules in order to complete this activity. Also, you will find it helpful to have already worked through the mini-project <link document="m15052">MIDI File Parsing</link>.</para>
+    </section>
+    <section id="id-408890632399">
+      <title>Introduction</title>
+      <para id="id9294391">In this project you will create your own LabVIEW application that can produce a standard MIDI file. You will first develop a library of six subVIs that can be combined into a top-level VI that operates just like <term>MIDI_UpDown.vi</term> below (click the “Run” button (right-pointing arrow) to create the MIDI file, then double-click on the MIDI file to hear it played by your soundcard):</para>
+      <para id="id9490219"><media id="idm2992880" alt=""><labview src="MIDI_UpDown.llb" viname="MIDI_UpDown.vi" version="8.2" mime-type="application/x-labviewrpvi82" height="400" width="570"><param name="lvfppviname" value="MIDI_UpDown.vi"/></labview></media>
+</para>
+      <para id="id7496317"><term>MIDI_UpDown.vi </term>produces a two-track MIDI file, with one track an ascending chromatic scale and the other a descending chromatic scale. You can select the voice for each track by choosing a tone number in the range 1 to 128. You can also select the duration of each note (“on time”) and space between the notes (“off time”).</para>
+      <para id="id9333242">Remember, <term>MIDI_UpDown.vi </term>is simply a demonstration of a top-level VI constructed from the subVIs that you will make. Once you have constructed your library of subVIs, you will be able to use them in a wide array of projects; here are some ideas:</para>
+      <list id="id10018246" list-type="bulleted"><item>simulated wind chime: with an appropriate voice selection (see the <link url="http://www.midi.org/about-midi/gm/gm1sound.shtml">General MIDI Level 1 Sound Set</link> to choose a bell-like sound) and random number generator for delta times</item>
+        <item>bouncing ping-pong ball: write a mathematical formula to model the time between bounces and the intensity of bounces </item>
+        <item>custom ring-tone generator for a cell phone</item>
+      </list>
+      <para id="id10267424">These are just a few ideas – be creative! Remember to take advantage of your ability to control the sound type, note-on velocity, pitch bend, etc.</para>
+    </section>
+    <section id="id-306544812733">
+      <title>Tour of the Top-Level Block Diagram</title>
+      <para id="id10015910">Click the image below to take a quick tour of the top-level block diagram of <term>MIDI_UpDown.vi</term>. The role of each subVI will be discussed in some detail, and you will have a better idea of the design requirements for each of the subVIs you will create.</para>
+      <figure id="id10784639"><title><link url="https://youtu.be/XVhCmhh4e1c" window="new">https://youtu.be/XVhCmhh4e1c</link> (6:36)</title><media id="eip-idm711226496" display="block" alt="Insert alt text here"><video mime-type="video/mpeg" src="https://www.youtube.com/embed/XVhCmhh4e1c?rel=0" autoplay="false" width="640" height="460"/></media>
+
+
+<caption>[video] Tour of the top-level block diagram of MIDI_UpDown.vi
+</caption></figure></section>
+    <section id="id-3997854879">
+      <title>SubVI Library</title>
+      <para id="id9899884">You will create six subVIs in this part of the project. <emphasis>Develop them in the exact order presented!</emphasis> Also, make sure you <emphasis>test and debug each subVI</emphasis> before moving on to the next. Many of the concepts and techniques you learn at the beginning carry forward to the more sophisticated subVIs you develop toward the end.</para>
+      <para id="id8152552">The requirements for the subVIs are detailed in the following sections. <term>Input Requirements</term> specify the name of the front panel control, its data type, and default value, if needed). <term>Output Requirements</term> are similar, but refer to the front panel indicators. <term>Behavior Requirements</term> describe in broad terms the nature of the block diagram you need to design and build.</para>
+      <para id="id9220822">An interactive front panel is provided for each of the subVIs as an aid to your development and testing. By running the subVI with test values, you can better understand the behavioral requirements. Also, you can compare your finished result with the “gold standard,” so to speak. </para>
+      <para id="id8297555">Screencast videos offer coding tips relevant to each subVI. The videos assume that you are developing the modules in the order presented.</para>
+      <para id="id9621813">All right, time to get to work!</para>
+      <note id="idp3993840">The file name convention adopted for this project will help you to better organize your work. Use the prefix “midi_” for the subVIs, and “MIDI_” for top-level applications that use the subVIs. This way all related subVIs will be grouped together when you display the files in the folder.</note>
+    </section>
+    <section id="id-187838784022">
+      <title>midi_PutBytes.vi</title>
+      <para id="id8498341"><term>midi_PutBytes.vi</term> accepts a string and writes it to a file. If the file already exists, the user should be prompted before overwriting the file.</para>
+      <section id="id-651705791407">
+        <title>Input Requirements</title>
+        <list id="id9664142" list-type="bulleted">
+          <item>file path (file path type)</item>
+          <item>string (string type)</item>
+        </list>
+      </section>
+      <section id="id-803257482429">
+        <title>Output Requirements</title>
+        <list id="id8598111" list-type="bulleted">
+          <item>error out (error cluster)</item>
+        </list>
+      </section>
+      <section id="id-482463751039">
+        <title>Behavior Requirements</title>
+        <list id="id9642542" list-type="bulleted">
+          <item>Create a new file or replace an existing file</item>
+          <item>If replacing a file, prompt the user beforehand to confirm</item>
+          <item>Write the string to the file, then close the file</item>
+          <item>Connect the file-related subVIs to <code>error out</code></item>
+        </list>
+        <para id="id7779573">Your finished subVI should behave like this one:</para>
+        <para id="id9418774"><media id="idp245936" alt=""><labview src="midi_PutBytes.llb" viname="midi_PutBytes.vi" version="8.2" mime-type="application/x-labviewrpvi82" height="319" width="486"><param name="lvfppviname" value="midi_PutBytes.vi"/></labview></media>
+</para>
+      </section>
+      <section id="id-154457735015">
+        <title>Coding Tips</title>
+        <para id="id7126498">Watch the screencast video to learn how to use the built-in subVIs <term>Open/Create/Replace File</term>, <term>Write to Binary File</term>, and <term>Close File</term>. Refer to the module <link document="m14767">Creating a subVI in LabVIEW</link> to learn how to create a <term>subVI</term>.</para>
+        <figure id="id7763897"><title><link url="https://youtu.be/S7ObUBbRQIo" window="new">https://youtu.be/S7ObUBbRQIo</link> (3:46)</title><media id="eip-idm281723392" display="block" alt="Insert alt text here"><video mime-type="video/mpeg" src="https://www.youtube.com/embed/S7ObUBbRQIo?rel=0" autoplay="false" width="640" height="460"/></media>
+
+<caption>[video] Learn how to write a string to a binary file
+</caption></figure></section>
+    </section>
+    <section id="id-677716530724">
+      <title>midi_AttachHeader.vi</title>
+      <para id="id9518052">Once all of the track strings have been created, <term>midi_AttachHeader.vi</term> will attach a header chunk to the beginning of the string to make a complete string prior to writing to a file. The header chunk requires the MIDI file type, number of tracks, and division (ticks per quarter note).</para>
+      <section id="id-213767165262">
+        <title>Input Requirements</title>
+        <list id="id9000138" list-type="bulleted">
+          <item>string in (string type)</item>
+          <item>type (16-bit unsigned integer type; defaults to 1)</item>
+          <item>number of tracks (16-bit unsigned integer type; defaults to 1)</item>
+          <item>ticks per qnote (16-bit unsigned integer type; defaults to 120)</item>
+        </list>
+      </section>
+      <section id="id-440079862594">
+        <title>Output Requirements</title>
+        <list id="id9882086" list-type="bulleted">
+          <item>string out (string type)</item>
+        </list>
+      </section>
+      <section id="id-653197616098">
+        <title>Behavior Requirements</title>
+        <list id="id9882790" list-type="bulleted">
+          <item>Create a header chunk ID sub-string (MThd)</item>
+          <item>Create a sub-string for chunk length (always 0x00_00_00_06)</item>
+          <item>Create sub-strings for the three unsigned integers applied as inputs</item>
+          <item>Assemble the sub-strings into a string in order as chunk ID, chunk length, type, number of tracks, and division</item>
+          <item>Append the inbound string to the header and output this result</item>
+        </list>
+        <para id="id9931452">Your finished subVI should behave like this one:</para>
+        <para id="id9750348"><media id="idm2079808" alt=""><labview src="midi_AttachHeader.llb" viname="midi_AttachHeader.vi" version="8.2" mime-type="application/x-labviewrpvi82" height="360" width="524"><param name="lvfppviname" value="midi_AttachHeader.vi"/></labview></media>
+</para>
+      </section>
+      <section id="id-575585526677">
+        <title>Coding Tips</title>
+        <para id="id8564762">Watch the screencast video to learn how to use the <term>Concatenate Strings</term> node to join substrings together into a single string. You will also learn how use the nodes <term>To Variant</term> and <term>Variant to Flattened String</term> to convert a numerical value into its representation as a sequence of bytes in a string.</para>
+        <figure id="id6728446"><title><link url="https://youtu.be/5xiGXLZovbU" window="new">https://youtu.be/5xiGXLZovbU</link> (6:35)</title><media id="eip-idm253992128" display="block" alt="Insert alt text here"><video mime-type="video/mpeg" src="https://www.youtube.com/embed/5xiGXLZovbU?rel=0" autoplay="false" width="640" height="460"/></media>
+
+<caption>[video] Learn how to concatenate strings and convert numerical values to a sequence of bytes
+</caption></figure></section>
+    </section>
+    <section id="id-188078121505">
+      <title>midi_FinishTrack.vi</title>
+      <para id="id8887925">Once all of the delta-time/event pairs have been assembled into a string, <term>midi_FinishTrack.vi</term> will attach a track chunk header to the beginning of the string and append an end-of-track meta-event at the end of the string. The resulting string will represent a complete track chunk.</para>
+      <section id="id-873858906826">
+        <title>Input Requirements</title>
+        <list id="id7335552" list-type="bulleted">
+          <item>string in (string type)</item>
+          <item>delta-time / event pairs (string type)</item>
+        </list>
+      </section>
+      <section id="id-615892657518">
+        <title>Output Requirements</title>
+        <list id="id7429944" list-type="bulleted">
+          <item>string out (string type)</item>
+        </list>
+      </section>
+      <section id="id-906111178321">
+        <title>Behavior Requirements</title>
+        <list id="id10397254" list-type="bulleted">
+          <item>Create a track chunk ID sub-string (MTrk)</item>
+          <item>Create a sub-string for a zero delta-time followed by an end-of-track meta-event</item>
+          <item>Determine the total number of bytes in the track, and create a four-byte substring that represents this value</item>
+          <item>Assemble the sub-strings into a string in order as chunk ID, chunk length, inbound string, and zero delta-time, and end-of-track meta-event, and output this result</item>
+        </list>
+        <para id="id9486379">Your finished subVI should behave like this one:</para>
+        <para id="id9968509"><media id="idp4218576" alt=""><labview src="midi_FinishTrack.llb" viname="midi_FinishTrack.vi" version="8.2" mime-type="application/x-labviewrpvi82" height="300" width="560"><param name="lvfppviname" value="midi_FinishTrack.vi"/></labview></media>
+</para>
+      </section>
+      <section id="id-327233109616">
+        <title>Coding Tips</title>
+        <para id="id7698063">Watch the screencast video to learn how to use the nodes <term>String Length</term> and <term>To Unsigned Long Integer </term>to determine the number of bytes in the track.</para>
+        <figure id="id7909770"><title><link url="https://youtu.be/53C16MqCo3w" window="new">https://youtu.be/53C16MqCo3w</link> (3:18)</title><media id="eip-idm661448400" display="block" alt="Insert alt text here"><video mime-type="video/mpeg" src="https://www.youtube.com/embed/53C16MqCo3w?rel=0" autoplay="false" width="640" height="460"/></media>
+
+<caption>[video] Learn how to determine the length of string
+</caption></figure></section>
+    </section>
+    <section id="id-0849982553562">
+      <title>midi_ToVLF.vi</title>
+      <para id="id8934015"><term>midi_ToVLF.vi</term> accepts a 32-bit unsigned integer and produces an output string that is anywhere from one to four bytes in length (recall that VLF = variable length format). You may find this subVI to be one of the more challenging to implement! Review the module <link document="m15051">Standard MIDI Files</link> to learn about variable-length format.</para>
+      <section id="id-453786321979">
+        <title>Input Requirements</title>
+        <list id="id8378323" list-type="bulleted">
+          <item>x (32-bit unsigned integer)</item>
+          <item>string in (string type)</item>
+        </list>
+      </section>
+      <section id="id-0180789961954">
+        <title>Output Requirements</title>
+        <list id="id10430706" list-type="bulleted">
+          <item>string out (string type)</item>
+        </list>
+      </section>
+      <section id="id-14580827693">
+        <title>Behavior Requirements</title>
+        <list id="id8304889" list-type="bulleted">
+          <item>Accept a numerical value to be converted into a sub-string one to four bytes in length in variable-length format</item>
+          <item>Append the sub-string to the inbound string, and output the result</item>
+        </list>
+        <para id="id8324856">Your finished subVI should behave like this one:</para>
+        <para id="id8152342"><media id="idp9986480" alt=""><labview src="midi_ToVLF.llb" viname="midi_ToVLF.vi" version="8.2" mime-type="application/x-labviewrpvi82" height="250" width="500"><param name="lvfppviname" value="midi_ToVLF.vi"/></labview></media>
+</para>
+      </section>
+      <section id="id-384816673797">
+        <title>Coding Tips</title>
+        <para id="id9090942">Watch the screencast video to learn how to convert a numerical value to and from the <term>Boolean Array</term> data type, an easy way to work with values at the bit level.</para>
+        <figure id="id8445873"><title><link url="https://youtu.be/rIwPjHNG1nA" window="new">https://youtu.be/rIwPjHNG1nA</link> (5:46)</title><media id="eip-idm320887072" display="block" alt="Insert alt text here"><video mime-type="video/mpeg" src="https://www.youtube.com/embed/rIwPjHNG1nA?rel=0" autoplay="false" width="640" height="460"/></media>
+
+<caption>[video] Learn how to convert a numerical value to a Boolean array in order to work at the individual bit level
+</caption></figure></section>
+    </section>
+    <section id="id-218853138903">
+      <title>midi_MakeDtEvent.vi</title>
+      <para id="id10994505"><term>midi_MakeDtEvent.vi</term> creates a delta-time / event pair. The subVI accepts a delta-time in ticks, a MIDI message selector, the channel number, and two data values for the MIDI message. The delta-time is converted into variable-length format, and the (typically) three-byte MIDI message is created. Both of these values are appended to the inbound string to produce the output string. Review the module <link document="m15049">MIDI Messages</link> to learn more.</para>
+      <section id="id-272256777035">
+        <title>Input Requirements</title>
+        <list id="id10131131" list-type="bulleted">
+          <item>string in (string type)</item>
+          <item>delta time (32-bit unsigned integer; defaults to 0)</item>
+          <item>event (enumerated data type with values Note Off, Note On, Control Change, Program Change, Pitch Wheel; defaults to Note Off)</item>
+          <item>channel (8-bit unsigned integer; defaults to 1)</item>
+          <item>data 1 (8-bit unsigned integer; defaults to 0)</item>
+          <item>data 2 (8-bit unsigned integer; defaults to 0)</item>
+        </list>
+      </section>
+      <section id="id-513811353907">
+        <title>Output Requirements</title>
+        <list id="id6173628" list-type="bulleted">
+          <item>string out (string type)</item>
+        </list>
+      </section>
+      <section id="id-510670839263">
+        <title>Behavior Requirements</title>
+        <list id="id8445862" list-type="bulleted">
+          <item>Convert the delta time value to VLF format using the <term>midi_ToVLF.vi</term> subVI you created in a previous step</item>
+          <item>Subtract 1 from the inbound channel number (this way you can refer to channel numbers by their standard numbers (in the range 1 to 16) outside the subVI.</item>
+          <item>Create a MIDI message status byte using the channel number and event selector</item>
+          <item>Finish the MIDI message by appending the appropriate byte values; depending on the MIDI message you need to create, you may use both ‘data 1’ and ‘data 2’, or just ‘data 1’ (Program Change message), or you may need to modify the incoming data value slightly (for example, outside the subVI it is more convenient to refer to the tone number for a Program Change message as a value between 1 and 128)</item>
+          <item>Append the delta-time sub-string and the MIDI message sub-string to the inbound string, and output the result</item>
+        </list>
+        <para id="id10994363">Your finished subVI should behave like this one:</para>
+        <para id="id7532620"><media id="idp916736" alt=""><labview src="midi_MakeDtEvent.llb" viname="midi_MakeDtEvent.vi" version="8.2" mime-type="application/x-labviewrpvi82" height="400" width="500"><param name="lvfppviname" value="midi_MakeDtEvent.vi"/></labview></media>
+</para>
+      </section>
+      <section id="id-696289188284">
+        <title>Coding Tips</title>
+        <para id="id10950113">Watch the screencast video to learn how to assemble a byte at the bit level, and also how to set up the enumerated data type for a case structure.</para>
+        <figure id="id9131682"><title><link url="https://youtu.be/vKsuRjwZ-Lk" window="new">https://youtu.be/vKsuRjwZ-Lk</link> (7:03)</title><media id="eip-idm489148848" display="block" alt="Insert alt text here"><video mime-type="video/mpeg" src="https://www.youtube.com/embed/vKsuRjwZ-Lk?rel=0" autoplay="false" width="640" height="460"/></media>
+
+
+
+
+
+
+<caption>[video] Learn how to assemble a byte at the bit level, and learn how to set up an enumerated data type for a case structure
+</caption></figure></section>
+    </section>
+    <section id="id-625292816376">
+      <title>midi_MakeDtMetaEvent.vi</title>
+      <para id="id7557073"><term>midi_MakeDtMeta.vi</term> creates a delta-time / meta-event pair. The subVI accepts a delta-time in ticks, a meta-event selector, text string, and tempo value (only certain meta-events require the last two inputs). The delta-time is converted into variable-length format, and the meta-event is created. Both of these values are appended to the inbound string to produce the output string. Review the module <link document="m15051">Standard MIDI Files</link> to learn about meta-events.</para>
+      <section id="id-772139561253">
+        <title>Input Requirements</title>
+        <list id="id8734520" list-type="bulleted">
+          <item>string in (string type)</item>
+          <item>delta time (32-bit unsigned integer; defaults to 0)</item>
+          <item>event (enumerated data type with values Text, Copyright Notice Text, Track Name, Instrument Name, Lyric Text, Marker Text, Cue Point Text, Sequencer-Specific, End of Track, and Set Tempo; defaults to Track Name)</item>
+          <item>text (string type)</item>
+          <item>tempo (32-bit unsigned integer; defaults to 500,000)</item>
+        </list>
+      </section>
+      <section id="id-550162779286">
+        <title>Output Requirements</title>
+        <list id="id9243156" list-type="bulleted">
+          <item>string out (string type)</item>
+        </list>
+      </section>
+      <section id="id-344606781304">
+        <title>Behavior Requirements</title>
+        <list id="id9771675" list-type="bulleted">
+          <item>Convert the delta time value to VLF format using the <term>midi_ToVLF.vi</term> subVI you created in a previous step</item>
+          <item>Create a meta-event sub-string using the sequence 0xFF (indicates meta-event), meta-event type (refer to a table of meta-event type numbers), meta-event length (use <term>midi_ToVLF.vi</term> for this purpose), and meta-event data.</item>
+          <item>Append the delta-time sub-string and the MIDI message sub-string to the inbound string, and output the result</item>
+        </list>
+        <para id="id8170820">Your finished subVI should behave like this one:</para>
+        <para id="id7689598"><media id="idp1952848" alt=""><labview src="midi_MakeDtMetaEvent.llb" viname="midi_MakeDtMetaEvent.vi" version="8.2" mime-type="application/x-labviewrpvi82" height="400" width="454"><param name="lvfppviname" value="midi_MakeDtMetaEvent.vi"/></labview></media>
+</para>
+      </section>
+      <section id="id-286010942967">
+        <title>Coding Tips</title>
+        <para id="id10305614">At this point you should have enough experience to proceed without assistance!</para>
+      </section>
+    </section>
+    <section id="id-362887623901">
+      <title>Top-Level VI Application</title>
+      <para id="id9934282">Congratulations! You now have assembled and tested six subVIs that can form the basis of many other projects. Now use your subVIs to build an  <term>application VI</term> (top-level VI) to demonstrate that your subVIs work properly together. Two applications that you can easily build are described next.</para>
+      <section id="id-969260568494">
+        <title>Sweep Through Notes and Tones</title>
+        <para id="id9595402">The application block diagram pictured below produces a single-track MIDI file containing an ascending chromatic sweep over the entire range of note numbers (0 to 127). Before sounding the note, the Program Number (tone or voice selection) is set to the same value as the note number. Thus, the voice changes for each note, adding additional interest to the sound. The note duration is specified by a control whose unit is milliseconds. As an exercise, you will need to complete the grayed-out area to convert the units of “duration” from milliseconds to ticks.</para>
+        <figure id="id7496319"><media id="idp3808320" alt=""><image src="../../media/graphics7.png" mime-type="image/png"/></media>
+       
+<caption>
+Block diagram to produce a single-track MIDI file containing an ascending chromatic sweep over the entire range of note numbers (0 to 127)
+</caption></figure>
+      </section>
+      <section id="id-26125054304">
+        <title>Measure the Velocity Profile of Your Soundcard</title>
+        <para id="id8763678">The application block diagram pictured below creates a MIDI file in which the same note is played repeatedly, but the velocity varies from the maximum to the minimum value in unit steps. When you play the MIDI file, you can record the soundcard’s audio output and measure its <term>velocity profile</term>, i.e., the mapping between the note’s velocity value and its waveform amplitude. The <link url="http://audacity.sourceforge.net/">Audacity</link> sound editing application works well for this purpose; choose “Wave Out Mix” as the input device to record the soundcard’s output.</para>
+        <figure id="id9969950"><media id="idp881968" alt=""><image src="../../media/graphics8.png" mime-type="image/png"/></media>
+        
+<caption>
+Block diagram to play a single note with velocity varied from 127 down to 0
+</caption></figure>
+      </section>
+    </section>
+  </content>
+</document>

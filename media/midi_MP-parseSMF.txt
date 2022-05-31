@@ -1,0 +1,22 @@
+Title: [miniproject] Parse and analyze a standard MIDI file
+
+Summary: This mini-project will develop your ability to interpret the binary file listing of a standard MIDI file. You will first parse the file into its component elements (headers, MIDI messages, meta-events, and delta-times), then analyze your results.
+
+Keywords:
+standard MIDI file
+MIDI message
+meta-event
+delta-time
+
+CNXML for figures:
+
+--------------------------------------------------------
+
+<media type="image/png" src="midi_parse-me-walkthru.html">
+   <param name="thumbnail" value="midi_parse-me-walkthru.png"/>
+   </media>
+<caption>
+   [video] Walk through the MIDI file "parse_me.mid" at a high level, then  show some parsing examples at the beginning of the file.
+</caption>
+
+

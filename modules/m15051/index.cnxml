@@ -1,0 +1,91 @@
+<document xmlns="http://cnx.rice.edu/cnxml" xmlns:md="http://cnx.rice.edu/mdml">
+  <title>Standard MIDI Files</title>
+  <metadata><md:content-id>undefined</md:content-id><md:title/><md:uuid>65d36d89-fe79-41ef-b5b1-3804278dcc76</md:uuid>
+</metadata>
+  <content>
+    <section id="id-416088139612">
+      <title>Introduction</title>
+      <para id="id4013829">In the 1970s, analog synthesizers were either played live by a keyboards musician or by a hardware device called a <term>sequencer</term>. The sequencer could be programmed with a pattern of notes and applied continuously as a loop to the keyboard. In 1983 the <term>MIDI</term> (<term>Musical Instrument Digital Interface</term>) standard was released, and MIDI-capable synthesizers could be connected to personal computers; the IBM PC and Apple Macintosh were among the first PCs to be connected to synthesizers. Software applications were developed to emulate the behavior of hardware sequencers, so naturally these programs were called “sequencers.”</para>
+      <para id="id12438640">A <term>sequencer application</term> records MIDI messages and measures the time intervals between each received message. When the song is played back, the sequencer transmits the MIDI messages to the synthesizer, with suitable delays to match the original measurements. Sequencers store related MIDI messages in <term>tracks</term>. For example, the musician can record a drum track, and then record a bass track while listening to the drum track, and continue in this fashion until a complete song is recorded with full instrumentation. The finished result is stored in <term>a standard MIDI file</term> (<term>SMF</term>), normally named with the <term>.mid</term> suffix. In recent years sequencing software has merged with audio recording software to create a <term>digital audio workstation,</term> or <term>DAW</term>. Audio and MIDI tracks may be easily recorded, edited, and produced in one seamless environment.</para>
+      <para id="id2940510">Standard MIDI files can be played by a number of non-sequencer applications such as Winamp and Windows Media Player. In the absence of a synthesizer, these applications send the MIDI messages directly to the MIDI synthesizer included on the computer’s soundcard. With a sufficiently high-quality soundcard, a software synthesizer application can be used instead of conventional synthesizer hardware to produce high-quality music; a USB piano-style keyboard is the only additional piece of gear needed.</para>
+      <para id="id12209553">After completing this module you will understand the structure of a standard MIDI file, including fundamental concepts such as <term>files chunks</term>, <term>delta-times</term> in <term>variable-length format</term>, <term>running status</term>, and <term>meta-events</term>. See <link document="m15049">MIDI Messages</link> to learn more about the types of messages that can be contained in a standard MIDI file.</para>
+    </section>
+    <section id="id-0780831844128">
+      <title>High-Level Structure</title>
+      <para id="id6053200">A <term>standard MIDI file </term>contains two high-level types of information called <term>chunks</term>: a single <term>header chunk</term>, and one or more <term>track chunks</term>. The header chunk defines which of three possible file types is in force, the number of track chunks in the file, and information related to timing. The track chunk contains pairs of <term>delta times</term> and <term>events</term>; the delta time indicates the elapsed time between two Note-On messages, for example.</para>
+      <para id="id11042449">A chunk begins with the <term>chunk type</term>, a four-byte string whose value is either <code>MThd</code> for a header chunk or <code>MTrk</code> for a track chunk. The <term>chunk length</term> follows this string, and indicates the number of bytes remaining in the chunk. The chunk length is a 32-bit unsigned integer in <term>big-endian</term> format, i.e., the most-significant byte is first.</para>
+    </section>
+    <section id="id-515437665664">
+      <title>Header Chunk</title>
+      <para id="id5785923">The <term>header chunk</term> begins with the string <code>MThd</code>, and is followed by a fixed <term>chunk length</term> value of 6; as a 32-bit unsigned integer this is 0x00_00_00_06.</para>
+      <para id="id3378831">The <term>file type</term> follows, and is a 16-bit unsigned integer that takes on one of three possible values: 0 (0x00_00) indicates single track data, 1 (0x00_01) indicates multi-track data which is vertically synchronous (i.e., they are parts of the same song), and 2 (0x00_02) indicates multi-track data with no implied timing relationship between tracks. Type 1 is by far the most common, where each track contains MIDI messages on a single channel. In this way tracks can be associated with a single instrument and recorded individually</para>
+      <para id="id12207412">Next is the <term>number of tracks</term>, a 16-bit unsigned integer. The number of tracks can range from one (0x00_01) to 65,535 (0xFF_FF). In practice the number of tracks is typically about 20 or so.</para>
+      <para id="id5754778">The last value in the header chunk is the <term>division</term>, a 16-bit unsigned integer that indicates the number of <term>ticks per quarter note</term>. The <term>tick</term> is a dimensionless unit of time, and is the smallest grain of time used to indicate the interval between events. A typical value of division is 120 (0x00_78).</para>
+    </section>
+    <section id="id-691952143955">
+      <title>Track Chunk</title>
+      <para id="id11788821">The <term>track chunk</term> begins with the string <code>MTrk</code>, and is followed by the <term>track length</term>, a 32-bit unsigned integer that indicates the number of bytes remaining in the track. In theory a track could be as long as 4 Gbytes!</para>
+      <para id="id11793241">The remainder of the track is composed of pairs of delta-times and events. A <term>delta-time</term> is in units of tics, and indicates the time interval between events. An <term>event</term> is either a MIDI message or a <term>meta-event</term>. Meta-events are unique to the standard MIDI file, and indicate information such as track name, tempo, copyright notice, lyric text, and so on.</para>
+      <para id="id3382557">A delta time uses <term>variable-length format</term> (<term>VLF</term>), and can be anywhere from one to four bytes in length. Short delta times require only one byte, and long delta times can require up to four bytes. Since short delta times tend to dominate the standard MIDI file (think of a chord hit that generates a burst of Note-On messages with very little time between events), most of the delta times are only one byte long and the overall file size is thus minimized. However, since very long delta times must be accommodated as well, the variable-length format can use up to four bytes to represent very long time intervals.</para>
+    </section>
+    <section id="id-827321280366">
+      <title>Variable-Length Format</title>
+      <para id="id4389908"><term>Variable-length format</term> (<term>VLF</term>) is used to represent delta times and the length of meta-events (to be described below). A numerical value represented in VLF requires from one to four bytes, depending on the size of the numerical value. Since the standard MIDI file is parsed one byte at a time, some type of scheme is required to let the parser know the length of the VLF number. A naïve approach would be to include an additional byte at the beginning of the VLF to indicate the number of bytes remaining in the value. However, this approach would mean that a delta time always requires a minimum of two bytes. Instead, the VLF uses the most-significant bit (MSB) as a flag to indicate whether more bytes follow.</para>
+      <para id="id5794075">For example, consider the unsigned integer 0x42 = 0b0100_0010 (66 decimal), which can fit within seven bits. Since the MSB is clear (is zero), the parser will not seek any further bytes, and will conclude that the numerical value is 0x42.</para>
+      <para id="id9869631">Now consider the slightly larger value 0x80 = 0b1000_0000 (128 in decimal), which requires all eight bits of the byte. Since a VLF byte only has seven usable bits, this value must be encoded in two bytes, like this: 0x81 0x00. Why? If we group the original value into two 7-bit groups, we have the two binary values 0b000_0001 and 0b000_0000. The MSB of the first group must be set to 1 to indicate that more bytes follow, so it becomes 0b1000_0001 = 0x81. The MSB of the second group must be set to 0 to indicate that no bytes follow, so it becomes 0b0000_0000 = 0x00.</para>
+      <exercise id="element-268"><problem id="idm2347952">
+		<para id="element-528">
+			A delta time in VLF appears as two bytes, 0x820C. What is the delta time expressed as a decimal value?
+		</para>
+	</problem>
+
+	<solution id="idm5523664">
+		<para id="element-89">268  [<link resource="midi_VLF-ex1.html">watch a video of the solution process</link>]
+		</para>
+	</solution>
+</exercise><exercise id="element-537"><problem id="idm5197792">
+		<para id="element-644">A delta time in VLF appears as four bytes, 0xF3E8A975. What is the delta time expressed as a hexadecimal value?
+		</para>
+	</problem>
+
+	<solution id="idm6476000">
+		<para id="element-830">E7A14F5  [<link resource="midi_VLF-ex2.html">watch a video of the solution process</link>]</para>
+	</solution>
+</exercise>
+      
+      
+      
+    </section>
+    <section id="id-539948145016">
+      <title>Running Status</title>
+      <para id="id9859009"><term>Running status</term> is another technique developed to minimize the size of a standard MIDI file. Consider a long sequence of Note-On and Note-Off messages (“long” meaning perhaps thousands of events). Eventually you would notice that storing the status byte for each and every note message would seem redundant and wasteful. Instead, it would be more economical to store one complete Note-On message (a status byte followed by the note number byte and the velocity byte), and then from that point onwards store <emphasis>only</emphasis> the note number byte and velocity byte.</para>
+      <para id="id3017658">Clearly this is a simple solution for the application that creates the MIDI file, but what about the application that must read and parse the file? How can the parser know whether or not the status byte has been omitted from a message? Fortunately, the status byte can easily be distinguished from the data bytes by examination of the MSB (most-significant bit). When the parser expects a new message to start and finds that the byte has its MSB cleared (set to zero), the parser recovers the status information by using the information from the most-recent complete message. That is, the status continues to be the same as whatever was indicated by the most recent status byte received. In this way, a series of Note On messages can be conveyed by only two bytes per message instead of three.</para>
+      <para id="id3432990">But how do notes get turned off without storing a Note-Off message? Fortunately a Note-On message with zero velocity is equivalent to a Note-Off event! Thus, once the running status is established as “note on,” it is possible to turn notes on and off for as long as you like, with each event requiring only two bytes.</para>
+      <para id="id5776191">Any time another message type needs to be inserted (such as a Program Change), the running status changes to match the new type of message. Alternatively, when a different channel is required for a note message, a fresh Note-On status byte must be sent. For these reasons, most standard MIDI files are organized as Type 1 (multi-track, vertically synchronous), where each track corresponds to a different voice on its own channel. The Program Change message occur at the beginning of the track to select the desired voice, a complete Note-On message is sent, and running status is used for the duration of the track to send Note-On and Note-Off messages as two-byte values.</para>
+    </section>
+    <section id="id-236140211175">
+      <title>Meta-Events</title>
+      <para id="id2968489"><term>Meta-events</term> provide a mechanism for file-related information to be represented, such as track name, tempo, copyright notice, lyric text, and so on. A meta-event begins with an 8-bit unsigned integer of value 0xFF. Note that the MSB (most-significant bit) is set, so a meta-event begins in the same way as a MIDI message status byte, whose MSB is also set. Next, the meta-event type is indicated by an 8-bit unsigned integer. After this, the number of bytes remaining in the meta-event is indicated by a numerical value in variable-length format (VLF); see an earlier section for full details). Lastly, the remainder of the meta-event information follows.</para>
+      <para id="id3010887">Some common meta-event types include 0x01 <term>(text event</term>), 0x02 (<term>copyright notice</term>), 0x03 <term>(track name</term>), 0x04 (<term>instrument name</term>), 0x05 (<term>lyric text</term>), and 0x7F (<term>sequencer-specific</term>). All of these meta-events can have an arbitrary length. Sequencer-specific is analogous to the <term>System-Exclusive</term> MIDI message, in that the data contained in the meta-event is arbitrary, and can normally be interpreted only by the sequencer application that created the standard MIDI file.</para>
+      <para id="id5759989">Tracks normally conclude with the <term>end-of-track</term> meta-event, whose type is 0x2F and whose length is zero. The end-of-track meta-event appears as the byte sequence 0xFF 0x2F 0x00 (meta-event, end-of-track type, zero length, with no data following).</para>
+      <para id="id10543377">The <term>set-tempo</term> meta-event (type 0x51) provides the value <term>microseconds per quarter note</term>, a 24-bit (3-byte) unsigned integer. This value in conjunction with the division value in the header chunk (division = ticks per quarter note) determines how to translate a delta time in ticks to a time in seconds. If the set-tempo meta-event is not included in the standard MIDI file, the value defaults to 500,000 microseconds per quarter note (or 0.5 seconds per quarter note).</para>
+      <para id="id2930348">Exercise: Given T (the value of a set-tempo meta-event) and D (the division value in the header chunk), determine an equation that can convert a delta time in ticks to a delta time in seconds.</para>
+    </section>
+    <section id="id-516432918116">
+      <title>For Further Study</title>
+      <list list-type="bulleted" id="id6366829">
+        <item>
+          <link url="http://www.4front-tech.com/pguide/midi/midi7.html">Description of MIDI Standard File Format</link>
+        </item>
+        <item>
+          <link url="http://jedi.ks.uiuc.edu/~johns/links/music/midifile.html">Standard MIDI Files 1.0</link>
+        </item>
+        <item><link url="http://www.sfu.ca/sca/Manuals/247/midi/UseNet-MidiPrimer.html">The USENET MIDI Primer</link> by Bob McQueer</item>
+        <item>
+          <link url="http://www.ccarh.org/courses/253/handout/smf/">Outline of the Standard MIDI File Structure</link>
+        </item>
+        <item>Textbook: Francis Rumsey, MIDI Systems and Control, 2nd ed., Focal Press, 1994. See Table 5.2 (A selection of common meta-event type identifiers)</item>
+      </list>
+    </section>
+  </content>
+</document>
